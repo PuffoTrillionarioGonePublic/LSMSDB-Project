@@ -1,5 +1,10 @@
-To export dabase data (run from Mongodb or Neo4j directory):
-`docker run --rm --mount type=bind,source="$(pwd)",target=/backup busybox tar cvfz /backup/backup.tar /backup/data`
+### Mongo
+- export with: `docker run --rm --mount type=bind,source="$(pwd)",target=/export mongo:latest sh -c 'mongodump --db WebsiteDB --host="<ip:port>" --gzip --archive=/export/mongodb.bak.gz'`
+- restore with: `docker run --rm --mount type=bind,source="$(pwd)",target=/export mongo:latest sh -c 'mongorestore --host="<ip:port>" --gzip --archive=/export/mongodb.bak.gz'`
 
-To import:
-`docker run --rm --mount type=bind,source="$(pwd)",target=/backup busybox sh -c "cd /backup && tar xvf /backup/backup.tar --strip 1"`
+### Node4j
+
+
+### Docker swarm
+- first build images: `docker-compose -f <compose-file> build`
+- then deploy: `docker stack deploy -c <compose-file> <name>`

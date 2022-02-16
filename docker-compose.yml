@@ -3,50 +3,135 @@ version: '3.4'
 services:
   website:
     image: website
-    container_name: "webserver"
+    hostname: "webserver"
     build:
       context: .
       dockerfile: Website/Dockerfile
     networks:
       db-network:
       web-network:
+    logging:
+      options:
+        max-file: "1"
+        max-size: "1m"
 
-  redis:
-    image: redis
-    container_name: rediscache
-    networks:
-      db-network:
+  # redis:
+  #   image: redis
+  #   container_name: rediscache
+  #   networks:
+  #     db-network:
 
-  mogodb:
+  mongodb1:
     image: "mongo:latest"
-    container_name: "mymongodb"
+    hostname: "mongodb1"
     ports:
       - "7777:27017"
-    environment:
-      MONGO_INITDB_DATABASE: app
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
+    # environment:
+    #   MONGO_INITDB_DATABASE: app
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: password
     volumes:
-      - ./Mongodb/data:/data/db
+      - mongodata1:/data/db
     networks:
       db-network:
+    entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all"]
+    deploy:
+      placement:
+        constraints: 
+          - "node.hostname == ProfileLARGE70"
+    logging:
+      options:
+        max-file: "1"
+        max-size: "1m"
+
+  mongodb2:
+    image: "mongo:latest"
+    hostname: "mongodb2"
+    ports:
+      - "7778:27017"
+    # environment:
+    #   MONGO_INITDB_DATABASE: app
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodata2:/data/db
+    networks:
+      db-network:
+    entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all"]
+    deploy:
+      placement:
+        constraints: 
+          - "node.hostname == ProfileLARGE71"
+    logging:
+      options:
+        max-file: "1"
+        max-size: "1m"
+
+  mongodb3:
+    image: "mongo:latest"
+    hostname: "mongodb3"
+    ports:
+      - "7779:27017"
+    # environment:
+    #   MONGO_INITDB_DATABASE: app
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongodata3:/data/db
+    networks:
+      db-network:
+    entrypoint: [ "/usr/bin/mongod", "--replSet", "rsmongo", "--bind_ip_all"]
+    deploy:
+      placement:
+        constraints: 
+          - "node.hostname == ProfileLARGE72"
+    logging:
+      options:
+        max-file: "1"
+        max-size: "1m"
+
+  mongosetup:
+    image: "mongo-setup"
+    build: 
+      context: MongoSetup
+      dockerfile: Dockerfile
+    hostname: "mongosetup"
+    depends_on:
+        - mongodb1
+        - mongodb2
+        - mongodb3
+    networks:
+      db-network:
+    deploy:
+      restart_policy:
+        condition: none 
+    logging:
+      options:
+        max-file: "1"
+        max-size: "1m"
+  #   volumes:
+  #     - mongostatus:/data/
 
   neo4j:
     image: neo4j
-    container_name: "neo4j"
+    hostname: "neo4j"
     ports:
      - "8888:7474"
      - "9999:7687"
     environment:
       NEO4J_AUTH: neo4j/s3cr3t
     volumes:
-      - ./Neo4j/data:/data
+      - neo4jdata:/data
     networks:
       db-network:
+    logging:
+      options:
+        max-file: "1"
+        max-size: "1m"
 
   nginx:
     image: proxy
-    container_name: "proxy"
+    hostname: "proxy"
     restart: always
     ports:
       - "5005:8080"
@@ -55,8 +140,39 @@ services:
       dockerfile: Dockerfile
     networks:
       web-network:
+    logging:
+      options:
+        max-file: "1"
+        max-size: "1m"
 
+  visualizersvc:
+    image: dockersamples/visualizer
+    depends_on:
+      - website 
+      - mongodb1
+      - mongodb2
+      - mongodb3
+      - neo4j
+    ports:
+      - '5000:8080'
+    volumes:
+        - '/var/run/docker.sock:/var/run/docker.sock'
+    logging:
+      options:
+        max-file: "1"
+        max-size: "1m"
+    deploy:
+      placement:
+        constraints:
+          - 'node.role==manager'
 
 networks:
   db-network:
   web-network:
+
+volumes:
+  mongodata1:
+  mongodata2:
+  mongodata3:
+  # mongostatus:
+  neo4jdata:

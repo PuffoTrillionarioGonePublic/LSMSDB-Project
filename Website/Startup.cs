@@ -34,10 +34,10 @@ namespace Website
             services.AddSingleton<IMongoDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<MongoDatabaseSettings>>().Value);
 
-            services.Configure<RedisSettings>(
-                Configuration.GetSection(nameof(RedisSettings)));
-            services.AddSingleton<IRedisSettings>(sp =>
-                sp.GetRequiredService<IOptions<RedisSettings>>().Value);
+            // services.Configure<RedisSettings>(
+            //     Configuration.GetSection(nameof(RedisSettings)));
+            // services.AddSingleton<IRedisSettings>(sp =>
+            //     sp.GetRequiredService<IOptions<RedisSettings>>().Value);
 
             services.Configure<Neo4jSettings>(
                 Configuration.GetSection(nameof(Neo4jSettings)));

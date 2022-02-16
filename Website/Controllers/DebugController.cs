@@ -30,20 +30,6 @@ namespace Website.Controllers
             return "Hello World";
         }
 
-        [HttpGet]
-        public async Task<IEnumerable<string>> GetAllUsers()
-        {
-            var users = await this.usersService.GetAllUserIds();
-            return users;
-        }
-
-        [HttpGet]
-        public async Task<IEnumerable<string>> GetAllTags()
-        {
-            var tags = await this.tagsService.GetAllTagIds();
-            return tags;
-        }
-
         [HttpPost]
         public async Task<ActionResult<User>> CreateUser(User user)
         {
@@ -140,25 +126,9 @@ namespace Website.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> FollowTag(string user, string tag)
+        public async Task FollowTag(string userId, string tagName)
         {
-            if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(tag))
-            {
-                return BadRequest();
-            }
-            await this.tagsService.FollowTag(user, tag);
-            return Accepted();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UnfollowTag(string user, string tag)
-        {
-            if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(tag))
-            {
-                return BadRequest();
-            }
-            await this.tagsService.UnfollowTag(user, tag);
-            return Accepted();
+            await this.tagsService.FollowTag(userId, tagName);
         }
 
         public async Task<ActionResult<User>> GetUser(string name)

@@ -35,23 +35,6 @@ namespace Website.Services
         public async Task<IEnumerable<User>> FindUsersByName(string username) =>
             await this.users.Find(u => u.Username.StartsWith(username)).Limit(20).ToListAsync();
 
-        // get all user ids - only for debugging purposes
-        public async Task<IEnumerable<string>> GetAllUserIds()
-        {
-            var users = await this.users.Find(u => true)
-                .Project(new ProjectionDefinitionBuilder<User>().Include(u => u.Id))
-                .As<User>()
-                .ToListAsync();
-            var ans = new string[users.Count];
-            var i = 0;
-            foreach (var u in users)
-            {
-                ans[i++] = u.Id;
-            }
-            return ans;
-        }
-
-
         // To add new users to the db
         public async Task AddNewUser(User user)
         {

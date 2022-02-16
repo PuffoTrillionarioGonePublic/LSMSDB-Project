@@ -30,21 +30,6 @@ namespace Website.Services
         public async Task<Models.Discussions.Tag> GetTag(string tag) =>
             await this._tags.Find(t => t.Id == tag).FirstOrDefaultAsync();
 
-        public async Task<IEnumerable<string>> GetAllTagIds()
-        {
-            var tags = await this._tags.Find(t => true)
-                .Project(new ProjectionDefinitionBuilder<Models.Discussions.Tag>().Include(t => t.Id))
-                .As<Models.Discussions.Tag>()
-                .ToListAsync();
-            var ans = new string[tags.Count];
-            var i = 0;
-            foreach (var t in tags)
-            {
-                ans[i++] = t.Id;
-            }
-            return ans;
-        }
-
         public async Task FollowTag(string userId, string tag)
         {
             tag = tag.Trim().ToUpper();
