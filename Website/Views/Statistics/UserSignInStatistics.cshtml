@@ -1,0 +1,54 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Statistics
+@{
+    var stats = ViewData["stats"] as IDictionary<string, int> ?? new Dictionary<string, int>();
+    var dates = stats.Keys.ToList();
+    dates.Sort();
+    dates.Reverse();
+    var totalUsers = stats.AsQueryable().Sum(p => p.Value);
+}
+
+<h1 class="h1">Sign In Statistics</h1>
+<p>
+    Here you can see some stats about the growth of the community.
+</p>
+
+
+<p>The number of registered users is @(totalUsers).</p>
+
+@if (!stats.Any())
+{
+<p>
+    No users registered at the moment, when someone will sign in come back to see
+    statistics about registrations.
+</p>
+}
+else
+{    int total = totalUsers;
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>New users</th>
+                <th>% inc</th>
+                <th>Partial sum</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var day in dates)
+            {
+                var count = stats[day];
+                <tr>
+                    <th>@day</th>
+                    <td>@count</td>
+                    <td>@(count == total ? "-" : string.Format("{0:0.00}%", 100.0* count / (total - count)))</td>
+                    <td>@total</td>
+                </tr>
+                total -= count;
+            }
+        </tbody>
+    </table>
+}
+

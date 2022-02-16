@@ -1,0 +1,153 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions
+@using System.Security.Claims
+@model Question
+@{
+    var question = Model;
+    question.Comments ??= new List<Website.Models.Discussions.Comment>();
+    bool IsAuthenticated = User.Identity.IsAuthenticated;
+    string UserId = User.FindFirst(ClaimTypes.SerialNumber)?.Value;
+
+    async Task RenderVoteToCommentToQuestion(Comment comment)
+    {
+        comment.Votes ??= new Dictionary<String, Website.Models.Discussions.Vote>();
+        @* Users cannot vote their comments *@
+        if (IsAuthenticated && comment.AuthorId != UserId && comment.Removed is null)
+        {
+            <div>
+                @* Has the user already voted the comment? *@
+                @* Like *@
+                @if (comment.Votes.TryGetValue(UserId, out var vote) && vote.IsUseful)
+                {
+                    @* You can delete the old vote *@
+                    <form class="d-inline" asp-area="" asp-controller="Questions" asp-action="RemoveVoteToCommentToQuestion"
+                          asp-route-question="@question.Id" asp-route-comment="@comment.Id">
+                        <button type="submit" class="btn btn-success btn-sm">Like (@comment.Votes.Values.Count(v => v.IsUseful))</button>
+                    </form>
+                }
+                else
+                {
+                    <form class="d-inline" asp-area="" asp-controller="Questions" asp-action="VoteCommentToQuestion"
+                          asp-route-question="@question.Id" asp-route-comment="@comment.Id" asp-route-useful="@true">
+                        <button type="submit" class="btn btn-outline-success btn-sm">Like (@comment.Votes.Values.Count(v => v.IsUseful))</button>
+                    </form>
+                }
+                @* Dislike *@
+                @if (vote is not null && !vote.IsUseful)
+                {
+                    @* You can delete the old vote *@
+                    <form class="d-inline" asp-area="" asp-controller="Questions" asp-action="RemoveVoteToCommentToQuestion"
+                          asp-route-question="@question.Id" asp-route-comment="@comment.Id">
+                        <button type="submit" class="btn btn-danger btn-sm">Dislike (@comment.Votes.Values.Count(v => !v.IsUseful))</button>
+                    </form>
+                }
+                else
+                {
+                    <form class="d-inline" asp-area="" asp-controller="Questions" asp-action="VoteCommentToQuestion"
+                          asp-route-question="@question.Id" asp-route-comment="@comment.Id" asp-route-useful="@false">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Dislike (@comment.Votes.Values.Count(v => !v.IsUseful))</button>
+                    </form>
+                }
+            </div>
+        }
+        else
+        {
+            <div>
+                <small>Likes: <span>@comment.Votes.Values.Count(v => v.IsUseful)</span> Dislikes: <span>@comment.Votes.Values.Count(v => !v.IsUseful)</span></small>
+            </div>
+        }
+    }
+
+    async Task RenderCommentToQuestion(Comment comment)
+    {
+        <li>
+            <div class="mb-2">
+                @if (comment.Removed is null)
+                {
+                    <p class="m-1">
+                        <span>By @comment.AuthorName: </span>
+                        @comment.Text
+                    <span> - @await Html.PartialAsync("_Localtime", comment.Created)</span>
+
+                        @if (IsAuthenticated && User.IsInRole("Admin"))
+                        {
+                            <a asp-area="" asp-controller="Questions" asp-action="ModerateQuestion"
+                                asp-route-questionId="@question.Id" asp-route-commentId="@comment.Id"
+                                class="btn btn-danger btn-sm">Moderate comment</a>
+                        }
+                    </p>
+                }
+                else
+                {
+                    if (IsAuthenticated && User.IsInRole("Admin"))
+                    {
+                        <div>
+                            <div>
+                                <span>Removed on @await Html.PartialAsync("_Localtime", comment.Removed.DateTime) for:</span>
+                                <p>
+                                    @comment.Removed.Reason
+                                </p>
+                            </div>
+                            <div>
+                                <span>Old text:</span>
+                                <p>@comment.Text</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="mb-1">
+                            <span>By @comment.AuthorName: </span>
+                            [REMOVED BY ADMIN]
+                            <span> - @await Html.PartialAsync("_Localtime", comment.Created)</span>
+                        </p>
+                    }
+                }
+
+                @{
+                    await RenderVoteToCommentToQuestion(comment);
+                }
+            </div>
+        </li>
+    }
+}
+
+@if (question is not null)
+{
+    <div>
+    @if (question.Comments is not null && question.Comments.Any())
+    {
+        @* Comments *@
+        <ul>
+            @foreach (var comment in question.Comments)
+            {
+                await RenderCommentToQuestion(comment);
+            }
+        </ul>
+    }
+    @* If logged can comment *@
+    @if (IsAuthenticated && question.Removed is null)
+    {
+        <div>
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-toggle="collapse" data-target="#collapseBlock" aria-expanded="false"
+                    aria-controls="collapseBlock">
+                Comment the question
+            </button>
+            <div id="collapseBlock" class="collapse">
+                <form asp-area="" asp-controller="Questions" asp-action="CommentQuestion"
+                        asp-route-question="@question.Id">
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">Comment the question</label>
+                        <textarea id="comment" name="comment" class="form-control" required></textarea>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary">Post your comment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    </div>
+}

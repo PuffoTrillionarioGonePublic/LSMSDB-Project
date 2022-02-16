@@ -1,0 +1,60 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@{
+    ViewData["Title"] = "Sign Up Page";
+
+    var errorMsg = ViewData["error"] as string;
+    var error = !string.IsNullOrWhiteSpace(errorMsg);
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Heap Hoverflow.</p>
+</div>
+
+<p>
+    Login to get member of our awesome community!
+</p>
+
+@if (error)
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMsg
+    </div>
+}
+
+@* Per la realizzazione del form: https://getbootstrap.com/docs/5.1/forms/form-control/ *@
+<form method="post" asp-area="" asp-controller="Users" asp-action="SignUp"
+      class="m-4 p-3 border rounded-3">
+    <div class="mb-3 row">
+        <label for="email" class="col-form-label col-sm-2">Email address:</label>
+        <div class="col-sm-10">
+            <input type="text" name="email" id="email"
+                   class="form-control @(error ? "is-invalid" : "")" required />
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label for="username" class="col-form-label col-sm-2">Username:</label>
+        <div class="col-sm-10">
+            <input type="text" name="username" id="username"
+                   class="form-control @(error ? "is-invalid" : "")" required />
+        </div>
+    </div>
+    <div class="mb-3 row">
+        <label for="password" class="col-form-label col-sm-2">Password:</label>
+        <div class="col-sm-10">
+            <input type="password" name="password" id="password"
+                   class="form-control @(error ? "is-invalid" : "")" required />
+        </div>
+    </div>
+    <div class="row m-1">
+        <span class="col-sm-6 p-1">
+            <input type="submit" value="Accedi" class="btn btn-primary w-100" />
+        </span>
+        <span class="col-sm-6 p-1">
+            <input type="reset" value="Annulla" class="btn btn-secondary w-100" />
+        </span>
+    </div>
+</form>

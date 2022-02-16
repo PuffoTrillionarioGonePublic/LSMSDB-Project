@@ -1,0 +1,47 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions;
+@using Website.Models.Users;
+@{
+    var tag = ViewData["tag"] as Website.Models.Discussions.Tag;
+    var questions = ViewData["questions"] as IEnumerable<Question>;
+    var user = ViewData["user"] as User;
+}
+
+<h1 class="h1">@tag.Id</h1>
+<p>The tag has been used <strong>@tag.CountQuestions</strong> times.</p>
+<p>The tag is followed by <strong>@tag.CountFollowers</strong> users.</p>
+
+@if (user is not null)
+{
+    @* If it came here the user is logged *@
+    @* Is tag creator? *@
+    if (user.IsTagCreator(tag.Id))
+    {
+        <p><strong>You are the tag creator!</strong></p>
+    }
+    @* else you might choose to follow the tag *@
+    else if (user.IsTagFollower(tag.Id))
+    {
+        @* Is tag follower *@
+        <div>
+            <strong>You follow the tag!</strong>
+            <form asp-area="" asp-controller="Tags" asp-action="UnfollowTag" asp-route-tag="@tag.Id" class="d-inline">
+                <button type="submit" class="btn btn-info">Unfollow!</button>
+            </form>
+        </div>
+    }
+    else
+    {
+        @* Whant to be tag follower *@
+        <div>
+            <form asp-area="" asp-controller="Tags" asp-action="FollowTag" asp-route-tag="@tag.Id" class="d-inline">
+                <button type="submit" class="btn btn-info">Follow the tag!</button>
+            </form>
+        </div>
+    }
+}
+<hr />
+
+@await Html.PartialAsync("_QuestionListPartial", questions)

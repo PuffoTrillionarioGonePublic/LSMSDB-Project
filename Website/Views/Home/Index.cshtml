@@ -1,0 +1,46 @@
+﻿@using System.Security.Claims
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Heap Overflow</h1>
+    <p>Heap Overflow is an awesome platform where sharing knowledge about everything!</p>
+</div>
+
+<br />
+
+<h2>How this platform is organised</h2>
+<p>Are you a newbie or just an old friend who didn't come back for long? Here is a brief recap of our platform is ordanised.</p>
+
+<a type="button" class="btn btn-primary" href="~/manual/ManualeUtente/index.html">
+    Go to the manual
+</a>
+
+@if (!User.Identity.IsAuthenticated)
+{
+    <h3 class="h3"><a asp-area="" asp-controller="Users" asp-action="LoginPage">Login</a> and <a asp-area="" asp-controller="Users" asp-action="SignUpPage">Sign Up</a></h3>
+    <p>Here visitors can officially become members of our community and access restricted functionalities.</p>
+}
+else
+{
+    <h3 class="h3"><a asp-area="" asp-controller="Users" asp-action="Me">Your home page</a> under <i>@(User.FindFirst(c => c.Type == ClaimTypes.Name).Value)!</i></h3>
+    <p>Here you can visualize your data and find the questions and tags of your interest.</p>
+
+    if (User.IsInRole("Admin"))
+    {
+        <h3 class="h3"><a asp-area="" asp-controller="Admin" asp-action="">Admin</a></h3>
+        <p>Here admins, and admins only, can access some advanced management functionalities.</p>
+    }
+}
+
+<h3 class="h3">Search bar and <a asp-area="" asp-controller="Searches" asp-action="">Search</a> section</h3>
+<p>Here you can search questions using keywords and tags.</p>
+
+<h3 class="h3"><a asp-area="" asp-controller="Tags" asp-action="">Tag</a> section</h3>
+<p>Here you can visualise all the tags used in the system.</p>
+
+<h3 class="h3"><a asp-area="" asp-controller="Statistics" asp-action="">Statistics</a></h3>
+<p>Here you can see and query the system for statistical data on platform usage.</p>
+
+

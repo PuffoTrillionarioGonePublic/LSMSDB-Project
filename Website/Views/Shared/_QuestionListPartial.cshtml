@@ -1,0 +1,46 @@
+﻿@*
+    Partial view for question list
+*@
+
+@model IEnumerable<Question>
+
+@{
+}
+
+@if (Model is not null)
+{
+<div class="list-group">
+    @foreach (var Q in Model)
+    {
+    <a asp-area="" asp-controller="Questions" asp-action="Read" asp-route-id="@Q.Id"
+       class="list-group-item list-group-item-action">
+        <div class="d-flex justify-content-between align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">@Q.Title</h5>
+                <small>@await Html.PartialAsync("_Localtime", Q.Created)</small>
+            </div>
+            @if (Q.UnreadUpdates is not null && Q.UnreadUpdates > 0)
+            {
+                <span class="badge bg-primary rounded-pill ml-3 text-white">@Q.UnreadUpdates</span>
+            }
+        </div>
+        <p>
+            Tags:
+            @if (Q.Tags is not null && Q.Tags.Any())
+            {
+            var tags = Q.Tags.ToList();
+            tags.Sort();
+
+            <ul class="list-group list-group-horizontal">
+                @foreach (var tag in tags)
+                {
+                <li class="list-group-item">@tag</li>
+                }
+            </ul>
+            }
+        </p>
+        <small>By <span class="font-italic">@Q.AuthorName</span></small>
+    </a>
+    }
+</div>
+}

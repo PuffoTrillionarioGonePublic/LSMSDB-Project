@@ -1,0 +1,43 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Statistics
+@{
+    var stats = ViewData["stats"] as QuestionStats;
+}
+
+<h1 class="h1">Questions statistics</h1>
+<p>Here you can see some statistics the questions.</p>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Mean</th>
+            <th>Standard deviation</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th># users per question</th>
+            <td>@stats.AvgUsers</td>
+            <td>@string.Format("{0:0.00}", stats.StdDevUsers)</td>
+        </tr>
+        <tr>
+            <th># comments per question</th>
+            <td>@stats.AvgComments</td>
+            <td>@string.Format("{0:0.00}", stats.StdDevComments)</td>
+        </tr>
+        <tr>
+            <th># answers per question</th>
+            <td>@stats.AvgAnswers</td>
+            <td>@string.Format("{0:0.00}", stats.StdDevAnswers)</td>
+        </tr>
+        <tr>
+            <th># comments to answers per question</th>
+            <td>@stats.AvgCommentsToAnswers</td>
+            <td>@string.Format("{0:0.00}", stats.StdDevCommentsToAnswers)</td>
+        </tr>
+    </tbody>
+</table>

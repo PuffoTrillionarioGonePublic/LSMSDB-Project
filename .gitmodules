@@ -1,0 +1,3 @@
+[submodule "Website/wwwroot/manual/ManualeUtente"]
+	path = Website/wwwroot/manual/ManualeUtente
+	url = https://github.com/PuffoTrillionario/ManualeUtente.git

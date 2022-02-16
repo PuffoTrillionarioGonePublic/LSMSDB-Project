@@ -1,0 +1,27 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Controllers
+@{
+}
+
+<h1 class="h1">Admin section</h1>
+<p>
+    This section is restricted to admins only!
+    Here admins can checks banned users.
+</p>
+
+<h3 class="h3"><a asp-area="" asp-controller="Admin" asp-action="@nameof(AdminController.SearchUser)">Search users</a></h3>
+<p>
+    Here you can search users by name.
+</p>
+
+<h3 class="h3"><a asp-area="" asp-controller="Admin" asp-action="@nameof(AdminController.Banned)">Banned users</a></h3>
+<p>
+    Here you can search all the users you have banned.
+</p>
+
+<h3 class="h3"><a asp-area="" asp-controller="Admin" asp-action="@nameof(AdminController.Synchronize)">Synchronize databases</a></h3>
+<p>
+    Manually force background databases to synchronize all data.
+</p>

@@ -1,0 +1,67 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Statistics;
+@{
+    var stats = ViewData["stats"] as UserTagStats;
+}
+
+<h1 class="h1">Users Per Tag and Tags Per Users</h1>
+<p>
+    How is the number of tags followed by user distributed?
+    How is the number of users following a tag distributed?
+    Here you can see some statistics about that.
+</p>
+
+
+<h3 class="h3">Users per Tag histogram</h3>
+@if (stats.UsersPerTag is null || stats.UsersPerTag.Count == 0)
+{
+    <p>No data available at the moment, maybe no tag exists?</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th># of followers</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tr in stats.UsersPerTag)
+            {
+                <tr>
+                    <th>@tr.Key</th>
+                    <td>@tr.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h3 class="h3">Tags per User histogram</h3>
+@if (stats.TagsPerUser is null || stats.TagsPerUser.Count == 0)
+{
+    <p>No data available at the moment, maybe no user exists?</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th># of tags</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tr in stats.TagsPerUser)
+            {
+                <tr>
+                    <th>@tr.Key</th>
+                    <td>@tr.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

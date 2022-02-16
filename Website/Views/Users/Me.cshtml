@@ -1,0 +1,73 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using System.Security.Claims;
+@using Website.Models.Discussions;
+@using Website.Models.Statistics;
+@using Website.Models.Users;
+@using Website.Controllers;
+@{
+    var user = ViewData["user"] as User;
+    var askedQuestionsCount = (long)ViewData["askedQuestionsCount"];
+    var askedQuestions = ViewData["askedQuestions"] as IEnumerable<Question>;
+    var interestingQuestion = ViewData["interestingQuestion"] as IEnumerable<Question>;
+}
+
+<h1 class="h1">Wellcome back @User.FindFirst(ClaimTypes.Name).Value!</h1>
+
+<p class="mb-3">
+    <a asp-area="" asp-controller="Users" asp-action="MyStatistics" class="btn btn-primary mr-1 mb-1">See your statistics</a>
+    <a asp-area="" asp-controller="Users" asp-action="ContributedQuestions" class="btn btn-primary mr-1 mb-1">See the questions you contributed to</a>
+</p>
+
+<section class="mb-3">
+    <h3 class="h3">About your questions</h3>
+
+    <p>
+        You asked @askedQuestionsCount questions!
+        <a asp-area="" asp-controller="Questions" asp-action="@nameof(QuestionsController.NewQuestion)">Ask a new one!</a>
+    </p>
+    @if (askedQuestionsCount != 0)
+    {
+        <a asp-area="" asp-controller="Users" asp-action="MyQuestions"
+           class="btn btn-primary">See your questions</a>
+    }
+</section>
+
+<section class="mb-3">
+    <h3 class="h3">About your tags</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th><th>#</th><th>List</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Created</th><td>@user.CreatedTagsCount()</td><td>@await Html.PartialAsync("_InlineLittleTagList", user.CreatedTags)</td>
+            </tr>
+            <tr>
+                <th>Followed</th><td>@user.FollowedTagsCount()</td><td>@await Html.PartialAsync("_InlineLittleTagList", user.FollowedTags)</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="mb-3">
+    <h3 class="h3">About the questions you are interested in</h3>
+    @if (interestingQuestion is not null && interestingQuestion.Any())
+    {
+        <p>
+            You are interested in @interestingQuestion.Count() questions!
+        </p>
+        @await Html.PartialAsync("_QuestionListPartial", interestingQuestion)
+    }
+    else
+    {
+        <p>
+            You have not requested updates when any question get modified,
+            subscribe to any discussion and the questions will be listes
+            here.
+        </p>
+    }
+</section>

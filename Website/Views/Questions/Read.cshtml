@@ -1,0 +1,66 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    var question = ViewData["question"] as Website.Models.Discussions.Question;
+    question.Answers ??= new LinkedList<Website.Models.Discussions.Answer>();
+    bool IsAuthenticated = User.Identity.IsAuthenticated;
+    string UserId = User.FindFirst(System.Security.Claims.ClaimTypes.SerialNumber)?.Value;
+}
+
+@if (question is null)
+{
+    <p>Ooops! Something went wrong! Please notify the admins!</p>
+}
+else
+{
+    if (question.Removed is null)
+    {
+        <h1 class="h1">@question.Title</h1>
+    }
+    else
+    {
+        <h1 class="h1">[REMOVED BY ADMIN]</h1>
+    }
+
+    <p>
+        Tags:
+        @if (question.Tags is not null && question.Tags.Any())
+        {
+            var tags = question.Tags.ToList();
+            tags.Sort();
+
+            @await Html.PartialAsync("_TagListPartial", tags)
+        }
+    </p>
+    <div>
+
+        @await Html.PartialAsync("Question/_Question", question)
+
+        @* To remove question *@
+        @if (IsAuthenticated && User.IsInRole("Admin") && question.Removed is null)
+        {
+            <div class="mb-2">
+                <a asp-area="" asp-controller="Questions" asp-action="ModerateQuestion"
+                    asp-route-questionId="@question.Id"
+                    class="btn btn-block btn-danger">Moderate question</a>
+            </div>
+        }
+
+        @await Html.PartialAsync("Question/_CommentToQuestion", question)
+
+    </div>
+
+    <hr />
+
+    @await Html.PartialAsync("Question/_AnswerForm", question)
+
+    <p>@question.Answers.Count() answers</p>
+    @foreach (var answer in question.Answers)
+    {
+        @await Html.PartialAsync("Question/_Answer", new { Question = question, Answer = answer })
+    }
+}
+
+@{
+}

@@ -1,0 +1,53 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions
+@using Website.Models.Application
+@{
+    var tags = ViewData["tags"] as IEnumerable<Tag>;
+    var page = (int)ViewData["page"];
+    var resultsPerPage = (int)ViewData["resultsPerPage"];
+    var tagSearch = ViewData["tagSearch"] as string;
+}
+
+<h1 class="h1">Tags</h1>
+<p>Here you can find all the tags used in the website!</p>
+
+<form asp-area="" asp-controller="Tags" asp-action="">
+    <div class="form-row mb-3">
+        <label for="tagSearch" class="col-sm-4 col-form-label mb-1">Filter tags:</label>
+        <div class="col-sm-6 mb-1">
+            <input type="text" class="form-control" id="tagSearch" name="tagSearch" placeholder="Tag initials..." value="@tagSearch">
+        </div>
+        <div class="col-sm-2">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </div>
+</form>
+
+<div class="container">
+    <ul class="row row-cols-3 row-cols-sm-4 row-cols-lg-6 row-cols-xl-8 list-unstyled list">
+        @foreach (var tag in tags)
+        {
+            <li class="col-6 col-lg-2 col-md-3 col-sm-4 mb-4">
+                <a class="d-block rounded border border-info rounded-3 p-1" asp-area="" asp-controller="Tags" asp-action="Tag"
+                   asp-route-tag="@tag.Id">
+                    <span class="h6 d-block">@tag.Id</span>
+                    <span class="text-info d-block">Used @tag.CountQuestions times</span>
+                </a>
+            </li>
+        }
+    </ul>
+</div>
+
+@await Html.PartialAsync("_PagingList", new PagingArgs
+{
+    Controller = "Tags",
+    CurrentFull = tags.Count() == resultsPerPage,
+    CurrentPage = page,
+    Args = new Dictionary<string, string>
+    {
+        [nameof(resultsPerPage)] = resultsPerPage.ToString(),
+        [nameof(tagSearch)] = tagSearch,
+    },
+})

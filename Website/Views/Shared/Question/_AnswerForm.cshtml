@@ -1,0 +1,29 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions
+@model Question
+@{
+    var question = Model;
+    bool IsAuthenticated = User.Identity.IsAuthenticated;
+}
+
+@* Your response *@
+@if (IsAuthenticated && question.Removed is null)
+{
+    <div>
+        <h3 class="h3">Your response</h3>
+        <form asp-area="" asp-controller="Questions" asp-action="Reply"
+              asp-route-question="@question.Id">
+            <div class="mb-3">
+                <label for="response" class="form-label">Your response</label>
+                <textarea id="response" name="response" class="form-control"
+                          placeholder="The solution is..." required
+                          rows="10"></textarea>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">Submit your answer</button>
+            </div>
+        </form>
+    </div>
+}

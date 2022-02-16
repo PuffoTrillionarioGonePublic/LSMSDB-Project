@@ -1,0 +1,15 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Controllers
+@{
+}
+
+<h1 class="h1">Synchronize databases</h1>
+<p>Syncronize Neo4j with MongoDB.</p>
+<p>DO NOT DO ANYTHING IF YOU DO NOT EXACTLY KNOW WHAT ARE YOU DOING!!!</p>
+
+
+<form class="mb-3" asp-area="" asp-controller="Admin" asp-action="@nameof(AdminController.SynchronizeDB)">
+    <button type="submit" class="btn-lg btn-block btn btn-danger">Sinchronize databases!</button>
+</form>

@@ -1,0 +1,35 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions
+@using System.Security.Claims
+@{
+    var question = Model.Question as Question;
+    var answer = Model.Answer as Answer;
+    bool IsAuthenticated = User.Identity.IsAuthenticated;
+    string UserId = User.FindFirst(ClaimTypes.SerialNumber)?.Value;
+}
+
+@* If logged can comment *@
+@if (IsAuthenticated)
+{
+    <div>
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-toggle="collapse" data-target="#collapseBlock-@answer.Id" aria-expanded="false"
+                aria-controls="collapseBlock-@answer.Id">
+            Comment the answer
+        </button>
+        <div id="collapseBlock-@answer.Id" class="collapse">
+            <form asp-area="" asp-controller="Questions" asp-action="CommentAnswer"
+                  asp-route-question="@question.Id" asp-route-answer="@answer.Id">
+                <div class="mb-3">
+                    <label for="comment" class="form-label">Comment the answer</label>
+                    <textarea id="comment" name="comment" class="form-control" required></textarea>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">Post your comment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+

@@ -1,0 +1,39 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions
+@using Website.Models.Application
+@using Website.Controllers
+@{
+    var askedQuestionsCount = (long)ViewData["askedQuestionsCount"];
+    var askedQuestions = ViewData["askedQuestions"] as IEnumerable<Question>;
+    var resultsPerPage = (int)ViewData["resultsPerPage"];
+    var page = (int)ViewData["page"];
+}
+
+<a asp-area="" asp-controller="Users" asp-action="Me"
+   class="btn btn-primary">Go back to your home page</a>
+
+<h1 class="h1">Here are the questions you ascked</h1>
+
+@if (askedQuestionsCount == 0)
+{
+    <p>You have not asked questions yet, come back when you will!</p>
+}
+else
+{
+    <p>You have asked @askedQuestionsCount questions!</p>
+
+    @await Html.PartialAsync("_QuestionListPartial", askedQuestions)
+    @await Html.PartialAsync("_PagingList", new PagingArgs
+    {
+        Controller = "Users",
+        Action = nameof(UsersController.MyQuestions),
+        CurrentFull = askedQuestions.Count() == resultsPerPage,
+        CurrentPage = page,
+        Args = new Dictionary<string, string>
+        {
+            [nameof(resultsPerPage)] = resultsPerPage.ToString(),
+        },
+    })
+}

@@ -1,0 +1,47 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions
+@using Website.Models.Application
+@{
+    var questions = ViewData["questions"] as IEnumerable<Question>;
+    var page = (int)ViewData["page"];
+    var take = (int)ViewData["take"];
+}
+
+<h1>Questions!</h1>
+
+@if (User.Identity.IsAuthenticated)
+{
+    <a asp-area="" asp-controller="Questions" asp-action="NewQuestion">Ask a question</a>
+}
+else
+{
+    <p><a asp-area="" asp-controller="Users" asp-action="LoginPage">Log in</a> to ask.</p>
+}
+
+@if (!questions.Any())
+{
+    <p>
+        No questions at the moment.
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-area="" asp-controller="Questions" asp-action="NewQuestion">Be the first to ask!</a>
+        }
+    </p>
+}
+else
+{
+    @await Html.PartialAsync("_QuestionListPartial", questions)
+
+    @await Html.PartialAsync("_PagingList", new PagingArgs
+    {
+        Controller = "Questions",
+        CurrentFull = questions.Count() == take,
+        CurrentPage = page,
+        Args = new Dictionary<string, string>
+        {
+            [nameof(take)] = take.ToString(),
+        },
+    })
+}

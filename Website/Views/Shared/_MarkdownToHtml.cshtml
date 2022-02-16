@@ -1,0 +1,11 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model string
+@using Markdig
+@{
+    var markdown = Model as string;
+    var pipeline = new MarkdownPipelineBuilder().DisableHtml().Build();
+    var result = Markdig.Markdown.ToHtml(markdown, pipeline);
+}
+<div>@Html.Raw(result)</div>

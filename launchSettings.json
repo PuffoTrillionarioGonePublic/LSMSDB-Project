@@ -1,0 +1,17 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "composeLaunchServiceName": "website",
+      "serviceActions": {
+        "mogodb": "StartWithoutDebugging",
+        "nginx": "StartWithoutDebugging",
+        "redis": "StartWithoutDebugging",
+        "website": "StartDebugging"
+      },
+      "composeLaunchAction": "LaunchBrowser",
+      "commandVersion": "1.0",
+      "composeLaunchUrl": "{Scheme}://localhost:{ServicePort}"
+    }
+  }
+}

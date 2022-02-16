@@ -1,0 +1,62 @@
+version: '3.4'
+
+services:
+  website:
+    image: website
+    container_name: "webserver"
+    build:
+      context: .
+      dockerfile: Website/Dockerfile
+    networks:
+      db-network:
+      web-network:
+
+  redis:
+    image: redis
+    container_name: rediscache
+    networks:
+      db-network:
+
+  mogodb:
+    image: "mongo:latest"
+    container_name: "mymongodb"
+    ports:
+      - "7777:27017"
+    environment:
+      MONGO_INITDB_DATABASE: app
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./Mongodb/data:/data/db
+    networks:
+      db-network:
+
+  neo4j:
+    image: neo4j
+    container_name: "neo4j"
+    ports:
+     - "8888:7474"
+     - "9999:7687"
+    environment:
+      NEO4J_AUTH: neo4j/s3cr3t
+    volumes:
+      - ./Neo4j/data:/data
+    networks:
+      db-network:
+
+  nginx:
+    image: proxy
+    container_name: "proxy"
+    restart: always
+    ports:
+      - "5005:8080"
+    build:
+      context: ./Proxy
+      dockerfile: Dockerfile
+    networks:
+      web-network:
+
+
+networks:
+  db-network:
+  web-network:

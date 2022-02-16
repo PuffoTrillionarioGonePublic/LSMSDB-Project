@@ -1,0 +1,122 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions
+@{
+    var question = ViewData["question"] as Question;
+    var questionId = ViewData["questionId"] as string;
+    var answerId = ViewData["answerId"] as string;
+    var commentId = ViewData["commentId"] as string;
+    Answer answer = null;
+    Comment comment = null;
+}
+
+<div class="mb-3">
+    <a class="btn btn-link" asp-area="" asp-controller="Questions" asp-action="Read"
+       asp-route-Id="@questionId">Back to question</a>
+</div>
+
+<h1 class="h1">Moderate: @question.Title</h1>
+<p>Author: <span>@question.AuthorName</span></p>
+<p>Date: <span>@await Html.PartialAsync("_Localtime", question.Created)</span></p>
+<h3 class="h3">Question</h3>
+<p>@question.Text</p>
+
+@* Hide the question *@
+@if (answerId is null && commentId is null)
+{
+    <form asp-area="" asp-controller="Questions" asp-action="RemoveQuestion"
+          asp-route-question="@questionId">
+        <div class="mb-3">
+            <label for="reason" class="form-label">Reason</label>
+            <textarea id="reason" name="reason" class="form-control"
+                      placeholder="The question was hidden because..." required
+                      rows="10"></textarea>
+        </div>
+        <div>
+            <button class="btn btn-block btn-danger">Hide question</button>
+        </div>
+    </form>
+}
+@if (answerId is not null)
+{
+    answer = question.Answers.First(a => a.Id == answerId);
+    <h4 class="h4">Answer</h4>
+    <p>Author: <span>@answer.AuthorName</span></p>
+    <p>Date: <span>@await Html.PartialAsync("_Localtime", answer.Created)</span></p>
+    <p>@answer.Text</p>
+
+    @* Hide the answer *@
+    if (commentId is null)
+    {
+        if (answer.Removed is not null)
+        {
+            <p class="text-danger">QUESTION ALREADY HIDDEN!</p>
+        }
+        else
+        {
+            <form asp-area="" asp-controller="Questions" asp-action="RemoveAnswer"
+                  asp-route-question="@questionId" asp-route-answer="@answerId">
+                <div class="mb-3">
+                    <label for="reason" class="form-label">Reason</label>
+                    <textarea id="reason" name="reason" class="form-control"
+                              placeholder="The question was hidden because..." required
+                              rows="10"></textarea>
+                </div>
+                <div>
+                    <button class="btn btn-block btn-danger">Hide Answer</button>
+                </div>
+            </form>
+        }
+    }
+}
+@if (commentId is not null)
+{
+    comment = answer?.Comments.First(c => c.Id == commentId) ?? question.Comments.First(c => c.Id == commentId);
+    <h4 class="h4">Comment</h4>
+    <p>Author: <span>@comment.AuthorName</span></p>
+    <p>Date: <span>@await Html.PartialAsync("_Localtime", comment.Created)</span></p>
+    <p>@comment.Text</p>
+
+    @if (comment.Removed is not null)
+    {
+        <p class="text-danger">COMMENT ALREADY HIDDEN!</p>
+    }
+    else
+    {
+        @* It is a comment to question *@
+        @if (answerId is null)
+        {
+            <form asp-area="" asp-controller="Questions" asp-action="RemoveCommentToQuestion"
+                  asp-route-question="@questionId" asp-route-comment="@commentId">
+                <div class="mb-3">
+                    <label for="reason" class="form-label">Reason</label>
+                    <textarea id="reason" name="reason" class="form-control"
+                              placeholder="The question was hidden because..." required
+                              rows="10"></textarea>
+                </div>
+                <div>
+                    <button class="btn btn-block btn-danger">Hide comment</button>
+                </div>
+            </form>
+        }
+        @*  It is a comment to answer *@
+        else
+        {
+            <form asp-area="" asp-controller="Questions" asp-action="RemoveCommentToAnswer"
+                  asp-route-question="@questionId" asp-route-answer="@answerId"
+                  asp-route-comment="@commentId">
+                <div class="mb-3">
+                    <label for="reason" class="form-label">Reason</label>
+                    <textarea id="reason" name="reason" class="form-control"
+                              placeholder="The question was hidden because..." required
+                              rows="10"></textarea>
+                </div>
+                <div>
+                    <button class="btn btn-block btn-danger">Hide comment</button>
+                </div>
+            </form>
+        }
+    }
+}
+

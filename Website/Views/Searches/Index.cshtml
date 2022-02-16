@@ -1,0 +1,61 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions;
+@using Website.Models.Application;
+@{
+    var questions = ViewData["questions"] as IEnumerable<Question>;
+    var tags = ViewData["tags"] as string;
+    var keywords = ViewData["keywords"] as string;
+    var taglist = ViewData["taglist"] as IEnumerable<string>;
+
+    // for paging
+    var page = (int)(ViewData["page"] ?? 0);
+    var resultsPerPage = (int)(ViewData["resultsPerPage"] ?? 20);
+}
+
+<h1 class="h1">Search questions</h1>
+
+<p>Do you need help? Maybe someone has already answered to your question, why not search?</p>
+
+<form asp-area="" asp-controller="Searches" asp-action="" method="get">
+    <div class="mb-3">
+        <label form="tags" class="form-label">Tags</label>
+        <input id="tags" class="form-control" name="tags" placeholder="0 to 5 comma separated tags" value="@(string.Join(", ", taglist ?? Enumerable.Empty<string>()))" />
+    </div>
+    <div class="mb-3">
+        <label for="keywords" class="form-label">Keywords to search for in the question?</label>
+        <input id="keywords" class="form-control" name="keywords" required value="@(keywords ?? string.Empty)" />
+    </div>
+    <div class="p-1 m-2">
+        <button class="btn btn-block btn-primary" type="submit">Search</button>
+    </div>
+</form>
+
+@if (questions is not null && questions.Any())
+{
+    <hr />
+    <div>
+        <h3 class="h3">Research results</h3>
+        @if (taglist is not null && taglist.Any())
+        {
+            <p>Tags: <i>@string.Join(", ", taglist)</i></p>
+        }
+        <p>Keywords: <i>@keywords</i></p>
+    </div>
+
+    @await Html.PartialAsync("_QuestionListPartial", questions)
+
+    @await Html.PartialAsync("_PagingList", new PagingArgs
+    {
+        Controller = "Searches",
+        CurrentFull = questions.Count() == resultsPerPage,
+        CurrentPage = page,
+        Args = new Dictionary<string, string>
+        {
+            [nameof(resultsPerPage)] = resultsPerPage.ToString(),
+            [nameof(keywords)] = keywords,
+            [nameof(taglist)] = string.Join(",", taglist ?? Enumerable.Empty<string>()),
+        },
+    })
+}

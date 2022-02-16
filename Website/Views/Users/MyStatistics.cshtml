@@ -1,0 +1,98 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+    The purpose of
+*@
+@using System.Security.Claims;
+@using Website.Models.Discussions;
+@using Website.Models.Statistics;
+@using Website.Models.Users;
+@using Website.Controllers;
+@{
+    var user = ViewData["user"] as User;
+    var askedQuestionsCount = (long)ViewData["askedQuestionsCount"];
+    var askedQuestions = ViewData["askedQuestions"] as IEnumerable<Question>;
+    var interestingQuestion = ViewData["interestingQuestion"] as IEnumerable<Question>;
+    var userVoteStats = ViewData["userVoteStats"] as UserVoteStats;
+}
+
+<h1 class="h1">Your statistics</h1>
+
+<section>
+    <h3 class="h3">Your data</h3>
+    <table class="table">
+        <thead></thead>
+        <tbody>
+            <tr>
+                <th>Your name</th>
+                <td>@user.Username</td>
+            </tr>
+            <tr>
+                <th>Your email address</th>
+                <td>@user.Email</td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td>
+                    @if (user.IsAdmin)
+                    {
+                        <text>Admin</text>
+                    }
+                    else
+                    {
+                        <text>Normal user</text>
+                    }
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="mb-3">
+    <h3 class="h3">About the votes you received</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Useful</th>
+                <th>Useless</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Your answers</th>
+                <td>@userVoteStats.ALike</td>
+                <td>@userVoteStats.ADislike</td>
+            </tr>
+            <tr>
+                <th>Your comments</th>
+                <td>@userVoteStats.CLike</td>
+                <td>@userVoteStats.CDislike</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section class="mb-3">
+    <h3 class="h3">About your tags</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>#</th>
+                <th>List</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>Created</th>
+                <td>@user.CreatedTagsCount()</td>
+                <td>@await Html.PartialAsync("_InlineLittleTagList", user.CreatedTags)</td>
+            </tr>
+            <tr>
+                <th>Followed</th>
+                <td>@user.FollowedTagsCount()</td>
+                <td>@await Html.PartialAsync("_InlineLittleTagList", user.FollowedTags)</td>
+            </tr>
+        </tbody>
+    </table>
+</section>

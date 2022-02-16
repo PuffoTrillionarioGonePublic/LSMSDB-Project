@@ -1,0 +1,54 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+    This partial view is intended to be used for the list with the number of pages under results lists
+*@
+@using Website.Models.Application
+@model PagingArgs
+@{
+    Model.Args ??= new Dictionary<string, string>();
+    int page = Model.CurrentPage;
+    int i = Math.Max(0, page - 3);
+}
+<div class="m-4">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            @if (i > 0)
+            {
+                @* add link to first page with questions *@
+                <li class="page-item">
+                    <a asp-area="@Model.Area" asp-controller="@Model.Controller" asp-action="@Model.Action"
+                       asp-all-route-data="@Model.Args"
+                       class="page-link">1</a>
+                </li>
+                if (i > 1)
+                {
+                    <li class="page-item">
+                        <span class="page-link">...</span>
+                    </li>
+                }
+            }
+            @for (; i < page; ++i)
+            {
+                Model.Args[Model.PageFieldName] = i.ToString();
+                <li class="page-item">
+                    <a asp-area="@Model.Area" asp-controller="@Model.Controller" asp-action="@Model.Action"
+                       asp-all-route-data="@Model.Args"
+                       class="page-link">@(i+1)</a>
+                </li>
+            }
+            <li class="page-item active" aria-current="page">
+                <span class="page-link">@(page+1)</span>
+            </li>
+            @if (Model.CurrentFull)
+            {
+                @* this page is full, maybe we can check next *@
+                Model.Args[Model.PageFieldName] = (i+1).ToString();
+                <li class="page-item">
+                    <a asp-area="@Model.Area" asp-controller="@Model.Controller" asp-action="@Model.Action"
+                       asp-all-route-data="@Model.Args" class="page-link">Next</a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>

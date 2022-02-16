@@ -1,0 +1,85 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions
+@using System.Security.Claims
+@model Question
+@{
+    var question = Model;
+    bool IsAuthenticated = User.Identity.IsAuthenticated;
+    string UserId = User.FindFirst(ClaimTypes.SerialNumber)?.Value;
+}
+
+
+<div>
+    <div>
+        By <span>@question.AuthorName</span> on
+           <span>@await Html.PartialAsync("_Localtime", question.Created)</span>
+    </div>
+    @if (question.Removed is null)
+    {
+    <div>@await Html.PartialAsync("_MarkdownToHtml", question.Text)</div>
+    }
+    else
+    {
+        @if (IsAuthenticated && User.IsInRole("Admin"))
+        {
+        <div>
+            <div>
+                <span>Removed on @await Html.PartialAsync("_Localtime", question.Removed.DateTime) for:</span>
+                <p>
+                    @question.Removed.Reason
+                </p>
+            </div>
+            <div>
+                <span>Old text:</span>
+                <p style="white-space: pre-wrap">@question.Text</p>
+            </div>
+        </div>
+        }
+        else
+        {
+            <p>[REMOVED BY ADMIN]</p>
+        }
+    }
+    @if (question.Removed is null && IsAuthenticated && question.AuthorId == UserId)
+    {
+        <form asp-area="" asp-controller="Questions" asp-action="SetQuestionSolvedStatus" asp-route-question="@question.Id" asp-route-solved="@(!question.Solved)">
+            <div class="input-group mb-3">
+                @if (question.Solved)
+                {
+                    <button type="submit" class="btn btn-block btn-success"><strong>SOLVED!</strong> <small>(Click to unmark.)</small></button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-block btn-outline-success">Click to mark as <strong>solved</strong></button>
+                }
+            </div>
+        </form>
+    }
+    else if (question.Solved)
+    {
+        <p class="btn btn-block btn-success">The problema has beed <strong>SOLVED</strong>!</p>
+    }
+</div>
+
+@** If user is authenticated *@
+@if (IsAuthenticated)
+{
+<div class="mb-3">
+    @* Users cannot follow removed questions *@
+    @if (question.Removed is null && (question.InterestedUsers is null || !question.InterestedUsers.ContainsKey(UserId)))
+    {
+    <form asp-area="" asp-controller="Questions" asp-action="SubscribeQuestion" asp-route-question="@question.Id">
+        <button type="submit" class="btn btn-info">Subscribe for updates</button>
+    </form>
+    }
+    else
+    {    
+    <strong>You will be notified in case of updates!</strong>
+    <form asp-area="" asp-controller="Questions" asp-action="UnsubscribeQuestion" asp-route-question="@question.Id" class="d-inline">
+        <button type="submit" class="btn btn-info">Cancel subscription</button>
+    </form>
+    }
+</div>
+}

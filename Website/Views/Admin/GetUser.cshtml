@@ -1,0 +1,96 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Users
+@{
+    var user = ViewData["user"] as User;
+}
+
+<h1 class="h1">USER: @user.Username</h1>
+<p>
+    Here are some data about the user available for the admins.
+</p>
+
+
+<h3 class="h3">General</h3>
+<p>Some general data about the user.</p>
+<table class="table">
+    <tbody>
+        <tr>
+            <th>Username</th>
+            <td>@user.Username</td>
+        </tr>
+        <tr>
+            <th>Email address</th>
+            <td>@user.Email</td>
+        </tr>
+        <tr>
+            <th>Is admin</th>
+            <td>@user.IsAdmin</td>
+        </tr>
+        @if (!user.IsAdmin)
+        {
+            <tr>
+                <th>Status</th>
+                <td>
+                    @if (user.IsCurrentlyBanned())
+                    {
+                        <span class="btn btn-danger">BANNED!</span>
+                    }
+                </td>
+            </tr>
+        }
+        <tr>
+            <th>Is admin</th>
+            <td>@user.IsAdmin</td>
+        </tr>
+        <tr>
+            <th>Tags created</th>
+            <td>@await Html.PartialAsync("_InlineLittleTagList", user.CreatedTags)</td>
+        </tr>
+        <tr>
+            <th>Tags followed</th>
+            <td>@await Html.PartialAsync("_InlineLittleTagList", user.FollowedTags)</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h3 class="h3">Ban user</h3>
+@if (!user.IsCurrentlyBanned())
+{
+    <form asp-area="" asp-controller="Admin" asp-action="BanUser" asp-route-id="@user.Id">
+        <div class="mb-3">
+            <label for="reason" class="form-label">Reason of the ban</label>
+            <textarea id="reason" name="reason" class="form-control"
+                      placeholder="The user did..." required
+                      rows="5"></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger btn-block mb-3">Ban for 1 hour!</button>
+    </form>
+}
+<p>The user has been banned @(user.BanList?.Count() ?? 0) times.</p>
+@if (user.BanList is not null && user.BanList.Any())
+{
+int i = 0;
+<table class="table">
+    <thead>
+        <tr>
+            <th>#</th><th>Start</th><th>End</th><th>Reason</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var ban in user.BanList)
+        {
+        <tr>
+            <th>@(++i)</th>
+            <td>@ban.BanStart.ToLocalTime()</td>
+            <td>@ban.BanEnd?.ToLocalTime()</td>
+            <td>@ban.Reason</td>
+        </tr>
+        }
+    </tbody>
+</table>
+}
+
+

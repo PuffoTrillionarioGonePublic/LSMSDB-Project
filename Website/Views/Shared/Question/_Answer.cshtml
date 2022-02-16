@@ -1,0 +1,182 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Discussions
+@using System.Security.Claims
+@{
+    var question = Model.Question as Question;
+    var answer = Model.Answer as Answer;
+    answer.Votes ??= new Dictionary<String, Vote>();
+    answer.Comments ??= new List<Comment>();
+    bool IsAuthenticated = User.Identity.IsAuthenticated;
+    string UserId = User.FindFirst(ClaimTypes.SerialNumber)?.Value;
+}
+
+
+<div id="@answer.Id">
+    <div>
+        @if (answer.ContainsSolution)
+        {
+            <h5 class="h5">SOLUTION</h5>
+            @if (IsAuthenticated && question.AuthorId == UserId)
+            {
+                <form asp-area="" asp-controller="Questions" asp-action="UnmarkAnswerAsSolution" asp-route-question="@question.Id" asp-route-answer="@answer.Id">
+                    <button type="submit" class="btn btn-outline-warning">This question was not the solution <small>(and I made a mistake)</small></button>
+                </form>
+            }
+        }
+        <div>
+            By <span>@answer.AuthorName</span> on
+               <span>@await Html.PartialAsync("_Localtime", answer.Created)</span>
+        </div>
+
+        @* Show answer only if has not been removed *@
+        @if (answer.Removed is null)
+        {
+            <div>@await Html.PartialAsync("_MarkdownToHtml", answer.Text)</div>
+            if (IsAuthenticated && User.IsInRole("Admin"))
+            {
+                <div class="mb-1">
+                    <a asp-area="" asp-controller="Questions" asp-action="ModerateQuestion"
+                       asp-route-questionId="@question.Id" asp-route-answerId="@answer.Id"
+                       class="btn btn-block btn-sm btn-danger">Moderate answer</a>
+                </div>
+            }
+        }
+        else
+        {
+            @* Show details to admins *@
+            if (IsAuthenticated && User.IsInRole("Admin"))
+            {
+                <div>
+                    <div>
+                        <span>Removed on @await Html.PartialAsync("_Localtime", answer.Removed.DateTime) for:</span>
+                        <p>
+                            @answer.Removed.Reason
+                        </p>
+                    </div>
+                    <div>
+                        <span>Old text:</span>
+                        <p style="white-space: pre-wrap">@answer.Text</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <p>[REMOVED BY ADMIN]</p>
+            }
+
+        }
+
+
+
+        @* A user cannot mark HIS answers as solutions! *@
+        @if (IsAuthenticated && !answer.ContainsSolution && question.AuthorId == UserId && answer.AuthorId != UserId && question.Removed is null)
+        {
+            <form asp-area="" asp-controller="Questions" asp-action="MarkAnswerAsSolution" asp-route-question="@question.Id" asp-route-answer="@answer.Id">
+                <button type="submit" class="btn btn-outline-success">Mark as solution!</button>
+            </form>
+        }
+        <div>
+            @{
+                var voters = answer.Votes.Count();
+                <p class="mb-1">
+                    @if (voters > 0)
+                    {
+                        <span>
+                            @voters
+                        </span>
+                        <text>
+                            users voted this answer.
+                            Current score is
+                        </text>
+                        <span>
+                            @answer.CalculateAnsewrScore()
+                        </span>
+                    }
+                    else
+                    {
+                        <text>
+                            No one voted this answer!
+                        </text>
+                    }
+                </p>
+                @* Only logged user can vote answers and only if they are not the answer writer *@
+                @if (IsAuthenticated && answer.AuthorId != UserId && answer.Removed is null)
+                {
+                    answer.Votes.TryGetValue(UserId, out var oldVote);
+                    <div class="mb-2">
+                        @if (oldVote is not null)
+                        {
+                            <p class="mb-1">
+                                You marked the answer as
+                                @if (oldVote.IsUseful)
+                                {
+                                    <strong class="text-success">USEFUL</strong>
+                                }
+                                else
+                                {
+                                    <strong class="text-danger">USELESS</strong>
+                                }
+                                <text>!</text>
+                            </p>
+                        }
+                        <div class="btn-group" role="group">
+                            @* Vota come utle *@
+                            @if (oldVote is null || !oldVote.IsUseful)
+                            {
+                                <form class="d-inline" asp-area="" asp-controller="Questions" asp-action="VoteAnswer"
+                                      asp-route-question="@question.Id" asp-route-answer="@answer.Id" asp-route-useful="@true">
+                                    <button type="submit" class="btn btn-outline-success">Mark as useful</button>
+                                </form>
+                            }
+                            @* Remove previous vote *@
+                            @if (oldVote is not null)
+                            {
+                                <form class="d-inline" asp-area="" asp-controller="Questions" asp-action="RemoveAnswerVote"
+                                      asp-route-question="@question.Id" asp-route-answer="@answer.Id">
+                                    <button type="submit" class="btn btn-warning">Delete previous vote</button>
+                                </form>
+                            }
+                            @* Vota come inutle *@
+                            @if (oldVote is null || oldVote.IsUseful)
+                            {
+                                <form class="d-inline" asp-area="" asp-controller="Questions" asp-action="VoteAnswer"
+                                      asp-route-question="@question.Id" asp-route-answer="@answer.Id" asp-route-useful="@false">
+                                    <button type="submit" class="btn btn-outline-danger">Mark as useless</button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    @if (answer.Comments.Count() > 0)
+    {
+        <div>
+            <ul>
+                @foreach (var comment in answer.Comments)
+                {
+                    @await Html.PartialAsync("Question/_CommentToAnswer", new
+                    {
+                        Question = question,
+                        Answer = answer,
+                        Comment = comment,
+                    })
+                }
+            </ul>
+        </div>
+    }
+
+    @* Users cannot comment removed answers *@
+    @if (answer.Removed is null)
+    {
+        @await Html.PartialAsync("Question/_CommentToAnswerForm", new
+        {
+            Question = question,
+            Answer = answer,
+        })
+    }
+</div>

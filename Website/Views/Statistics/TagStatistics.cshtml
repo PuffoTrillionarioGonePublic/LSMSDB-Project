@@ -1,0 +1,73 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Statistics
+@{
+    var taglist = ViewData["taglist"] as IEnumerable<string>;
+    var tagStatics = ViewData["tagStatics"] as IEnumerable<TagStatics>;
+}
+
+<h1 class="h1">Statistics about tags</h1>
+<p>Here you can see and search infos about tags.</p>
+
+
+<form method="get" asp-area="" asp-controller="Statistics" asp-action="TagStatistics">
+    <div class="mb-3">
+        <label form="tags" class="form-label">Tags</label>
+        <input id="tags" class="form-control" name="tags" placeholder="Comma separated tags" />
+    </div>
+    <div class="m-2">
+        <button class="btn btn-block btn-primary" type="submit">Search</button>
+    </div>
+</form>
+
+<hr />
+
+@if (taglist is not null && taglist.Any())
+{
+    <p>
+        You searched:  <span>@string.Join(" - ", taglist)</span>.
+    </p>
+
+    foreach (var stats in tagStatics)
+    {
+        <h3 class="h3">@stats.TagName</h3>
+        if (stats.TotalUsages == 0)
+        {
+            <p>Tag has never been used!</p>
+        }
+        else
+        {
+            <p>Total usages: <strong>@stats.TotalUsages</strong></p>
+
+            if (!stats.OtherTags.Any())
+            {
+                <p>Tag <i>@stats.TagName</i> has always been used alone!</p>
+            }
+            else
+            {
+                <p>Tag <i>@stats.TagName</i> has been used with other <i>@stats.OtherTags.Count()</i> tags!</p>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tag</th>
+                            <th>Count Common</th>
+                            <th>Relative Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var other in stats.OtherTags)
+                        {
+                            <tr>
+                                <th>@other.TagName</th>
+                                <td>@other.CommonUsages</td>
+                                <td>@string.Format("{0:0.00}", 100.0 * other.CommonUsages / stats.TotalUsages)%</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        }
+    }
+}
+

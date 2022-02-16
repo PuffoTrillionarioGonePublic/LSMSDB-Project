@@ -1,0 +1,48 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Ask a question";
+
+    var errorMsg = ViewData["error"] as string;
+    var error = !string.IsNullOrWhiteSpace(errorMsg);
+}
+
+<h1>Submit a new question!</h1>
+
+<p>Pay attention! The question title cannot be modified!</p>
+
+@if (error)
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMsg
+    </div>
+}
+
+<form asp-area="" asp-controller="Questions" asp-action="AddQuestion">
+    <div class="mb-3">
+        <label for="title">
+            Title:
+        </label>
+        <input id="title" name="question.title" type="text" class="form-control @(error ? "is-invalid" : "")" required />
+    </div>
+    <div class="mb-3">
+        <label for="tags">
+            Tags:
+        </label>
+        <input id="tags" name="tags" type="text" class="form-control @(error ? "is-invalid" : "")" placeholder="Comma-separated list of 1-5 tags" required />
+    </div>
+    <div class="mb-3">
+        <label for="question">
+            Your question:
+        </label>
+        <textarea id="question" name="question.text" class="form-control @(error ? "is-invalid" : "")" rows="3" required></textarea>
+    </div>
+    <div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>
+
+
+@{
+}

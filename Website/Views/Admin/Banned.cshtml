@@ -1,0 +1,48 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Users
+@{
+    var bannedUsers = ViewData["bannedUsers"] as IEnumerable<BannedUser>;
+}
+
+<h1 class="h1">Banned users</h1>
+<p>
+    Here you can see all the users you have banned.
+</p>
+
+@if (bannedUsers is null || !bannedUsers.Any())
+{
+    <p>You have banned no users.</p>
+}
+else
+{
+    int i = 0;
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>Email address</th>
+                <th>Registered</th>
+                <th>Ban start</th>
+                <th>Ban end</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ban in bannedUsers)
+            {
+            <tr>
+                <th>@(++i)</th>
+                <td><a asp-area="" asp-controller="Admin" asp-action="GetUser"
+                       asp-route-id="@ban.UserId">@ban.Username</a></td>
+                <td>@ban.Email</td>
+                <td>@await Html.PartialAsync("_Localtime", ban.Registered)</td>
+                <td>@await Html.PartialAsync("_Localtime", ban.BanStart)</td>
+                <td>@await Html.PartialAsync("_Localtime", ban.BanEnd)</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+

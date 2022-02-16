@@ -1,0 +1,58 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@using Website.Models.Users
+@{
+    var query = ViewData["query"] as string;
+    var userlist = ViewData["userlist"] as IEnumerable<User>;
+}
+
+<form asp-area="" asp-controller="Admin" asp-action="SearchUser">
+    <div class="mb-3">
+        <label form="query" class="form-label">Search by (beginning of) user name username</label>
+        <input id="query" class="form-control" name="query" placeholder="Username" />
+    </div>
+    <div class="m-2">
+        <button class="btn btn-block btn-primary" type="submit">Search</button>
+    </div>
+</form>
+
+@if (userlist is not null)
+{
+    <hr />
+    <h3 class="h3">Search results</h3>
+    <p>
+        You searched for: <i>@query</i>. <br />
+        @userlist.Count() results found.
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email address</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in userlist)
+            {
+                <tr>
+                    <th>
+                        <a asp-area="" asp-controller="Admin" asp-action="GetUser" asp-route-id="@u.Id">
+                            @u.Username
+                        </a>
+                    </th>
+                    <td>
+                        @u.Email
+                    </td>
+                    <td>
+                        @if (u.IsCurrentlyBanned())
+                        {
+                            <span class="btn btn-danger">BANNED!</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
