@@ -90,7 +90,6 @@ namespace Website.Controllers
                 {
                     switch (WE.Category)
                     {
-#warning TODO: is email or username already used?
                         case ServerErrorCategory.DuplicateKey:
                             return RedirectToAction(nameof(SignUpPage), "Users", new { Error = "Credenziali già in uso, sceglierne di differenti!" });
                     }
