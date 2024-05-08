@@ -38,7 +38,10 @@ services:
      - "8888:7474"
      - "9999:7687"
     environment:
+      # https://neo4j.com/docs/operations-manual/current/docker/ref-settings/
+      # https://neo4j.com/docs/operations-manual/current/docker/configuration/
       NEO4J_AUTH: neo4j/s3cr3t
+      NEO4J_dbms_security_auth__minimum__password__length: 1
     volumes:
       - ./Neo4j/data:/data
     networks:
